@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch ~/watch directory 
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/michael/Scripts/watch.sh
+Restart=on-failure
+User=michael
+
+[Install]
+WantedBy=multi-user.target
