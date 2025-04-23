@@ -1,0 +1,23 @@
+#!/bin/bash
+
+R=$((RANDOM%100+1))
+
+attempts=0
+max_attempts=5
+
+while [ "$attempts" -lt "$max_attempts" ]; do
+read -p "Can you guess the number? : " num
+
+if [ "$num" -eq "$R" ]; then
+    echo "Congratulations! You guessed the right number!"
+    exit 0
+elif [ "$num" -gt "$R" ]; then
+    echo "Too high"
+  else
+    echo "Too low"
+fi
+
+  attempts=$((attempts + 1))
+done
+
+echo "Sorry, you've run out of attempts. The correct number was $R"
