@@ -1,0 +1,68 @@
+---
+- name: Setup Docker, Docker Compose, and Nginx
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Add Docker GPG key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: yes
+
+    - name: Install pip
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install Docker Compose
+      apt:
+        name: docker-compose
+        state: present
+
+    - name: Create docker-compose directory
+      file:
+        path: /home/ubuntu/docker
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Create docker-compose.yml
+      copy:
+        dest: /home/ubuntu/docker/docker-compose.yml
+        content: |
+          version: "3"
+          services:
+            nginx:
+              image: nginx:latest
+              ports:
+                - "80:80"
+
+    - name: Run Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: /home/ubuntu/docker
+
