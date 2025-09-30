@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  dockerd:
+    image: docker:24-dind
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    volumes:
+      - dockerd-data:/var/lib/docker
+    networks:
+      - jenkins
+
+  jenkins:
+    build: ./master
+    ports:
+      - "8080:8080"   # Jenkins UI
+      - "50000:50000" # JNLP inbound agents
+    environment:
+      - DOCKER_HOST=tcp://dockerd:2375
+    depends_on:
+      - dockerd
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - jenkins
+    tty: true
+
+  jenkins-worker:
+    build: ./worker
+    depends_on:
+      - jenkins
+      - dockerd
+    networks:
+      - jenkins
+    stdin_open: true
+    tty: true
+    volumes:
+      - worker-data:/home/jenkins/agent
+
+volumes:
+  dockerd-data:
+  jenkins_home:
+  worker-data:
+
+networks:
+  jenkins:

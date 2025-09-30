@@ -1,0 +1,51 @@
+pipeline {
+    agent { label 'worker' }
+
+    environment {
+        IMAGE_NAME = "nodejs-test"
+        IMAGE_TAG = "latest"
+        APP_DIR = "forStep2"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                  echo "Building Docker image from $APP_DIR ..."
+                  docker build -t micker5904/$IMAGE_NAME:$IMAGE_TAG $APP_DIR
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PSW')]) {
+                    sh '''
+                        echo "$DOCKERHUB_PSW" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                        docker push $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG
+                    '''
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    def status = sh(
+                        script: "docker run --rm micker5904/$IMAGE_NAME:$IMAGE_TAG npm test",
+                        returnStatus: true
+                    )
+                    if (status != 0) {
+                        error("Tests failed")
+                    }
+                }
+            }
+        }
+    }
+}

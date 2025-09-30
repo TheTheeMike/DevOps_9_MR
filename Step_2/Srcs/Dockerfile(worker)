@@ -1,0 +1,11 @@
+FROM jenkins/inbound-agent:latest
+
+USER root
+# Install docker client
+RUN apt-get update \
+ && apt-get install -y docker.io curl \
+ && rm -rf /var/lib/apt/lists/*
+
+# back to jenkins user
+USER jenkins
+WORKDIR /home/jenkins
