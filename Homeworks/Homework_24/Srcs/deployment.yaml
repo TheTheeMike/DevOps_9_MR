@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: random-name-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: random-name
+  template:
+    metadata:
+      labels:
+        app: random-name
+    spec:
+      containers:
+      - name: random-name-container
+        image: micker5904/random-name-service:latest
+        ports:
+        - containerPort: 8082
+
