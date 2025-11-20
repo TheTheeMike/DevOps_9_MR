@@ -1,0 +1,12 @@
+global:
+  resolve_timeout: 5m
+
+receivers:
+  - name: 'telegram'
+    telegram_configs:
+      - bot_token: "8137359080:AAH1cg1ctRzVNbNgFhxK-BltI2QaPIdLfYM"
+        chat_id: 952126237
+        message: '{{ .CommonAnnotations.description }}'
+
+route:
+  receiver: 'telegram'
